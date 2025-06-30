@@ -22,7 +22,20 @@
             <button id="new-game-btn" class="btn">New Game</button>
             <button id="show-answer-btn" class="btn">Show Answer (Spymaster)</button>
         </div>
-    </div>
+        <div class="spymaster-tools">
+            <h2>Spymaster Tools</h2>
+            <div>
+                <label for="spymaster-code-output">Share this code with other Spymasters:</label>
+                <textarea id="spymaster-code-output" readonly placeholder="Generate a new game to get a code."></textarea>
+            </div>
+            <div>
+                <label for="spymaster-code-input">Load game from code:</label>
+                <div class="input-group">
+                    <input type="text" id="spymaster-code-input" placeholder="Enter spymaster code here">
+                    <button id="load-game-btn" class="btn">Load Game</button>
+                </div>
+            </div>
+        </div>
     </main>
 </body>
 </html>

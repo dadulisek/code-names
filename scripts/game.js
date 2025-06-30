@@ -4,6 +4,9 @@
             const messageBox = document.getElementById('message-box');
             const newGameBtn = document.getElementById('new-game-btn');
             const showAnswerBtn = document.getElementById('show-answer-btn');
+            const spymasterCodeOutput = document.getElementById('spymaster-code-output');
+            const spymasterCodeInput = document.getElementById('spymaster-code-input');
+            const loadGameBtn = document.getElementById('load-game-btn');
 
             // --- Card Data Storage ---
             // This is where all your potential Codenames words are stored.
@@ -43,7 +46,7 @@
                 "Whiskey", "Wind", "Window", "Wire", "Wolf", "Wood", "Word", "Worm", "Yard", "Zero"
             ];
 
-            let gameBoard = []; // Stores the current game board (word and type)
+            let gameBoard = []; // Stores the current game board (word, type, revealed, originalIndex)
             let currentTurn = ''; // 'red' or 'blue'
             let revealedCardsCount = { red: 0, blue: 0 };
             const TOTAL_RED_CARDS = 9; // Red starts with one more card
@@ -76,48 +79,137 @@
 
             /**
              * Initializes the Codenames game board.
-             * Selects 25 random words and assigns types (red, blue, bystander, assassin).
+             * If spymasterCode is provided, it loads the board from the code.
+             * Otherwise, it generates a new random board.
+             * @param {string} [spymasterCode] Optional code string to load a specific board.
              */
-            function initializeBoard() {
-                // Shuffle all available words
+            function initializeBoard(spymasterCode = null) {
+                boardElement.innerHTML = ''; // Clear existing cards
+                revealedCardsCount = { red: 0, blue: 0 }; // Reset revealed counts
+
+                if (spymasterCode) {
+                    try {
+                        gameBoard = parseSpymasterCode(spymasterCode);
+                        displayMessage("Spymaster View: Board loaded from code.");
+                        // For spymaster view, all cards are effectively "revealed" from the start visually
+                        // Add spymaster-mode class to disable clicks via CSS
+                        boardElement.classList.add('spymaster-mode');
+                        showAnswerBtn.style.display = 'none'; // Hide "Show Answer" button in spymaster view
+                        spymasterCodeOutput.value = spymasterCode; // Display the loaded code
+                    } catch (error) {
+                        displayMessage(`Error loading code: ${error.message}. Generating new random game.`);
+                        // Fallback to new random game if code is invalid
+                        generateNewRandomBoard();
+                        boardElement.classList.remove('spymaster-mode'); // Ensure clicks are enabled for normal game
+                        showAnswerBtn.style.display = 'inline-block'; // Show "Show Answer" button
+                    }
+                } else {
+                    generateNewRandomBoard();
+                    boardElement.classList.remove('spymaster-mode'); // Ensure clicks are enabled for normal game
+                    showAnswerBtn.style.display = 'inline-block'; // Show "Show Answer" button
+                }
+                renderBoard();
+            }
+
+            /**
+             * Generates a new random Codenames board.
+             */
+            function generateNewRandomBoard() {
+                // Create a copy of all words and shuffle them
                 const shuffledWords = shuffleArray([...allCodenamesWords]);
+                const selectedWordsWithIndices = [];
 
-                // Select the first 25 words for the current game
-                const selectedWords = shuffledWords.slice(0, TOTAL_CARDS_ON_BOARD);
+                // Select 25 unique words and store their original indices from allCodenamesWords
+                for (let i = 0; i < TOTAL_CARDS_ON_BOARD; i++) {
+                    const word = shuffledWords[i];
+                    const originalIndex = allCodenamesWords.indexOf(word); // Find original index
+                    selectedWordsWithIndices.push({ word: word, originalIndex: originalIndex });
+                }
 
-                // Create an array of card types
+                // Create an array of card types based on Codenames rules
                 const types = [];
                 for (let i = 0; i < TOTAL_RED_CARDS; i++) types.push('red');
                 for (let i = 0; i < TOTAL_BLUE_CARDS; i++) types.push('blue');
                 for (let i = 0; i < TOTAL_BYSTANDER_CARDS; i++) types.push('bystander');
                 types.push('assassin');
-
-                // Shuffle the types to randomize their assignment to words
                 const shuffledTypes = shuffleArray(types);
 
-                // Combine words with their assigned types
-                gameBoard = selectedWords.map((word, index) => ({
-                    word: word,
+                // Combine words with their assigned types and original indices
+                gameBoard = selectedWordsWithIndices.map((wordObj, index) => ({
+                    word: wordObj.word,
                     type: shuffledTypes[index],
-                    revealed: false
+                    revealed: false, // Cards start unrevealed in a normal game
+                    originalIndex: wordObj.originalIndex // Store original index for code generation
                 }));
 
                 // Randomly determine starting team
                 currentTurn = (Math.random() < 0.5) ? 'red' : 'blue';
-                // Adjust card counts based on starting team
-                if (currentTurn === 'red') {
-                    // Red already has 9, Blue 8. No change needed to totals as defined.
-                } else {
-                    // If blue starts, they still need 8, red still needs 9.
-                    // The "extra" card goes to the starting team.
-                    // For simplicity in this basic demo, we'll keep the static 9/8.
-                    // A proper implementation would swap one red for one blue if blue starts.
-                    // For now, red always has 9 and blue 8, and starting team is just for messaging.
+                displayMessage(`It's the ${currentTurn.toUpperCase()} team's turn!`);
+
+                // Generate and display the code for the newly created board
+                spymasterCodeOutput.value = generateSpymasterCode();
+            }
+
+            /**
+             * Generates a compact code string representing the current board layout.
+             * Format: "INDEX-TYPECHAR,INDEX-TYPECHAR,..."
+             * INDEX is 3 digits padded with leading zeros (e.g., 005, 123).
+             * TYPECHAR: R=red, B=blue, Y=bystander, A=assassin.
+             * @returns {string} The generated spymaster code.
+             */
+            function generateSpymasterCode() {
+                const typeMap = {
+                    'red': 'R',
+                    'blue': 'B',
+                    'bystander': 'Y',
+                    'assassin': 'A'
+                };
+                return gameBoard.map(card => {
+                    // Pad index with leading zeros to ensure consistent length (e.g., 5 -> "005")
+                    const indexStr = String(card.originalIndex).padStart(3, '0');
+                    const typeChar = typeMap[card.type];
+                    return `${indexStr}-${typeChar}`;
+                }).join(',');
+            }
+
+            /**
+             * Parses a spymaster code string into a gameBoard array for spymaster view.
+             * @param {string} codeString The code to parse.
+             * @returns {Array<Object>} An array of card objects for the gameBoard.
+             * @throws {Error} If the code format is invalid or words are out of range.
+             */
+            function parseSpymasterCode(codeString) {
+                const typeMapReverse = {
+                    'R': 'red',
+                    'B': 'blue',
+                    'Y': 'bystander',
+                    'A': 'assassin'
+                };
+                const parsedBoard = [];
+                const parts = codeString.split(',');
+
+                if (parts.length !== TOTAL_CARDS_ON_BOARD) {
+                    throw new Error(`Invalid code length. Expected ${TOTAL_CARDS_ON_BOARD} cards, got ${parts.length}.`);
                 }
 
-                revealedCardsCount = { red: 0, blue: 0 }; // Reset revealed counts
-                displayMessage(`It's the ${currentTurn.toUpperCase()} team's turn!`);
-                renderBoard();
+                for (const part of parts) {
+                    const [indexStr, typeChar] = part.split('-');
+                    const originalIndex = parseInt(indexStr, 10);
+                    const type = typeMapReverse[typeChar];
+
+                    // Validate parsed data
+                    if (isNaN(originalIndex) || originalIndex < 0 || originalIndex >= allCodenamesWords.length || !type) {
+                        throw new Error(`Invalid card format in code: "${part}".`);
+                    }
+
+                    parsedBoard.push({
+                        word: allCodenamesWords[originalIndex],
+                        type: type,
+                        revealed: true, // Always revealed in spymaster mode
+                        originalIndex: originalIndex
+                    });
+                }
+                return parsedBoard;
             }
 
             /**
@@ -131,12 +223,14 @@
                     cardElement.dataset.index = index; // Store index to access gameBoard data
                     cardElement.textContent = card.word;
 
+                    // If card is revealed (either by click or because it's spymaster mode)
                     if (card.revealed) {
                         cardElement.classList.add('revealed', card.type);
                     }
 
-                    // Add click listener only if not revealed
-                    if (!card.revealed) {
+                    // Add click listener only if not revealed and not in spymaster mode
+                    // The 'spymaster-mode' class on boardElement will handle disabling clicks via CSS
+                    if (!card.revealed && !boardElement.classList.contains('spymaster-mode')) {
                         cardElement.addEventListener('click', () => revealCard(cardElement, index));
                     }
 
@@ -152,8 +246,8 @@
             function revealCard(cardElement, index) {
                 const card = gameBoard[index];
 
-                // If card is already revealed, do nothing
-                if (card.revealed) {
+                // If card is already revealed or in spymaster mode, do nothing
+                if (card.revealed || boardElement.classList.contains('spymaster-mode')) {
                     return;
                 }
 
@@ -198,10 +292,9 @@
              * @param {string} winner The winning team ('red', 'blue') or 'assassin'.
              */
             function endGame(winner) {
-                // Remove all click listeners from cards
-                boardElement.querySelectorAll('.card:not(.revealed)').forEach(cardElement => {
-                    cardElement.style.pointerEvents = 'none'; // Disable clicks
-                });
+                // Ensure all cards are shown and not clickable at game end
+                showAllCards(); // Reveal any remaining unrevealed cards
+                boardElement.classList.add('spymaster-mode'); // Disable further clicks
 
                 if (winner === 'red') {
                     displayMessage('Red team wins! Congratulations!');
@@ -209,10 +302,8 @@
                     displayMessage('Blue team wins! Congratulations!');
                 } else if (winner === 'assassin') {
                     // The team that revealed the assassin loses.
-                    // For simplicity, we just say "Game Over!".
                     displayMessage('Game Over! The Assassin was revealed!');
                 }
-                showAllCards(); // Reveal all remaining cards for end-game review
             }
 
             /**
@@ -225,23 +316,34 @@
 
             /**
              * Reveals all cards on the board, used for the "Show Answer" button or end of game.
+             * This function is also called by endGame and in spymaster mode to ensure all are revealed.
              */
             function showAllCards() {
                 gameBoard.forEach((card, index) => {
-                    if (!card.revealed) {
+                    if (!card.revealed) { // Only reveal if not already revealed
                         const cardElement = boardElement.querySelector(`[data-index="${index}"]`);
                         if (cardElement) {
-                            card.revealed = true;
-                            cardElement.classList.add('revealed', card.type);
-                            cardElement.style.pointerEvents = 'none'; // Disable clicks
+                            card.revealed = true; // Update internal state
+                            cardElement.classList.add('revealed', card.type); // Apply classes
                         }
                     }
                 });
+                boardElement.classList.add('spymaster-mode'); // Ensure clicks are disabled after showing answers
             }
 
             // Event Listeners for control buttons
-            newGameBtn.addEventListener('click', initializeBoard);
-            showAnswerBtn.addEventListener('click', showAllCards);
+            newGameBtn.addEventListener('click', () => initializeBoard()); // Call without code for new game
+            showAnswerBtn.addEventListener('click', showAllCards); // Show all answers for current game
+
+            // Event Listener for loading game from spymaster code
+            loadGameBtn.addEventListener('click', () => {
+                const code = spymasterCodeInput.value.trim();
+                if (code) {
+                    initializeBoard(code); // Initialize board with the provided code
+                } else {
+                    displayMessage("Please enter a spymaster code to load.");
+                }
+            });
 
             // Initial game setup when the page loads
             initializeBoard();
