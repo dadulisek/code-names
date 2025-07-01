@@ -7,46 +7,90 @@
             const spymasterCodeOutput = document.getElementById('spymaster-code-output');
             const spymasterCodeInput = document.getElementById('spymaster-code-input');
             const loadGameBtn = document.getElementById('load-game-btn');
+            const wordListSelect = document.getElementById('word-list-select'); // New: Reference to the select element
 
             // --- Card Data Storage ---
-            // This is where all your potential Codenames words are stored.
-            // You can expand this list significantly!
-            const allCodenamesWords = [
-                "Apple", "Bank", "Beach", "Bear", "Bird", "Book", "Boot", "Bottle", "Bow", "Bowl",
-                "Branch", "Bridge", "Brush", "Bug", "Car", "Card", "Cat", "Cell", "Centaur", "Chocolate",
-                "Church", "Circle", "Cloud", "Clown", "Coat", "Code", "Cold", "Comet", "Compound", "Concert",
-                "Cotton", "Country", "Cow", "Crane", "Crown", "Cycle", "Dance", "Date", "Desert", "Diamond",
-                "Dice", "Dog", "Doll", "Door", "Dragon", "Dress", "Drill", "Driver", "Drop", "Duck",
-                "Dwarf", "Eagle", "Engine", "Europe", "Eye", "Face", "Fair", "Fall", "Fan", "Farm",
-                "Feather", "Fence", "Field", "File", "Film", "Fire", "Fish", "Flute", "Fly", "Foot",
-                "Force", "Fork", "Fountain", "Frog", "Game", "Gas", "Ghost", "Giant", "Glass", "Glove",
-                "Gold", "Graph", "Grass", "Green", "Ground", "Guard", "Hammer", "Hand", "Harp", "Head",
-                "Heart", "Hole", "Hook", "Horn", "Horse", "Hospital", "Hotel", "Ice", "Inch", "Index",
-                "Iron", "Ivory", "Jam", "Jet", "Jupiter", "Key", "Kid", "King", "Kiss", "Kite",
-                "Knight", "Lab", "Ladder", "Laser", "Lawyer", "Lead", "Lemon", "Life", "Light", "Limousine",
-                "Line", "Link", "Lion", "Liquid", "Lock", "Log", "London", "Luck", "Magnet", "Man",
-                "Map", "Mars", "Match", "Mercury", "Microscope", "Million", "Mine", "Mint", "Missile", "Model",
-                "Mole", "Moon", "Moscow", "Mount", "Mouse", "Mouth", "Mug", "Nail", "Needle", "Net",
-                "New York", "Night", "Note", "Novel", "Nurse", "Nut", "Oil", "Olive", "Opera", "Orange",
-                "Organ", "Palm", "Pan", "Pants", "Paper", "Parade", "Park", "Part", "Pass", "Paste",
-                "Penguin", "Phoenix", "Piano", "Pie", "Pilot", "Pine", "Pipe", "Pistol", "Plain", "Plane",
-                "Plastic", "Plate", "Play", "Point", "Poison", "Pole", "Police", "Pond", "Pool", "Port",
-                "Post", "Press", "Princess", "Pump", "Pupil", "Pyramid", "Queen", "Rabbit", "Radiation", "Rag",
-                "Ray", "Revolution", "Ring", "Robot", "Rock", "Rod", "Roll", "Rome", "Root", "Rose",
-                "Roulette", "Round", "Row", "Ruler", "Satellite", "Scale", "School", "Scientist", "Scissors", "Screen",
-                "Scuba Diver", "Seal", "Server", "Shadow", "Shakespeare", "Shark", "Ship", "Shoe", "Shop", "Shot",
-                "Sink", "Ski", "Skyscraper", "Sleigh", "Smoke", "Snow", "Snowman", "Socket", "Soldier", "Soul",
-                "Sound", "Space", "Spell", "Spider", "Spine", "Spot", "Spring", "Square", "Stadium", "Star",
-                "State", "Stick", "Stock", "Stomach", "Store", "Stream", "Strike", "String", "Sub", "Suit",
-                "Sun", "Supernova", "Sweat", "Swing", "Switch", "Table", "Tablet", "Tag", "Tail", "Tap",
-                "Tea", "Teacher", "Team", "Telescope", "Temple", "Text", "Thread", "Tide", "Tiger", "Time",
-                "Tokyo", "Tongue", "Tooth", "Torch", "Tower", "Track", "Train", "Tree", "Triangle", "Trip",
-                "Trunk", "Tube", "Turkey", "Underground", "Uniform", "Unicorn", "Vacuum", "Van", "Vet", "Wake",
-                "Wall", "War", "Wash", "Watch", "Water", "Wave", "Web", "Well", "Whale", "Wheel",
-                "Whiskey", "Wind", "Window", "Wire", "Wolf", "Wood", "Word", "Worm", "Yard", "Zero"
-            ];
+            // Now an object containing multiple word lists
+            const allCodenamesWords = {
+                "Default": [
+                    "Apple", "Bank", "Beach", "Bear", "Bird", "Book", "Boot", "Bottle", "Bow", "Bowl",
+                    "Branch", "Bridge", "Brush", "Bug", "Car", "Card", "Cat", "Cell", "Centaur", "Chocolate",
+                    "Church", "Circle", "Cloud", "Clown", "Coat", "Code", "Cold", "Comet", "Compound", "Concert",
+                    "Cotton", "Country", "Cow", "Crane", "Crown", "Cycle", "Dance", "Date", "Desert", "Diamond",
+                    "Dice", "Dog", "Doll", "Door", "Dragon", "Dress", "Drill", "Driver", "Drop", "Duck",
+                    "Dwarf", "Eagle", "Engine", "Europe", "Eye", "Face", "Fair", "Fall", "Fan", "Farm",
+                    "Feather", "Fence", "Field", "File", "Film", "Fire", "Fish", "Flute", "Fly", "Foot",
+                    "Force", "Fork", "Fountain", "Frog", "Game", "Gas", "Ghost", "Giant", "Glass", "Glove",
+                    "Gold", "Graph", "Grass", "Green", "Ground", "Guard", "Hammer", "Hand", "Harp", "Head",
+                    "Heart", "Hole", "Hook", "Horn", "Horse", "Hospital", "Hotel", "Ice", "Inch", "Index",
+                    "Iron", "Ivory", "Jam", "Jet", "Jupiter", "Key", "Kid", "King", "Kiss", "Kite",
+                    "Knight", "Lab", "Ladder", "Laser", "Lawyer", "Lead", "Lemon", "Life", "Light", "Limousine",
+                    "Line", "Link", "Lion", "Liquid", "Lock", "Log", "London", "Luck", "Magnet", "Man",
+                    "Map", "Mars", "Match", "Mercury", "Microscope", "Million", "Mine", "Mint", "Missile", "Model",
+                    "Mole", "Moon", "Moscow", "Mount", "Mouse", "Mouth", "Mug", "Nail", "Needle", "Net",
+                    "New York", "Night", "Note", "Novel", "Nurse", "Nut", "Oil", "Olive", "Opera", "Orange",
+                    "Organ", "Palm", "Pan", "Pants", "Paper", "Parade", "Park", "Part", "Pass", "Paste",
+                    "Penguin", "Phoenix", "Piano", "Pie", "Pilot", "Pine", "Pipe", "Pistol", "Plain", "Plane",
+                    "Plastic", "Plate", "Play", "Point", "Poison", "Pole", "Police", "Pond", "Pool", "Port",
+                    "Post", "Press", "Princess", "Pump", "Pupil", "Pyramid", "Queen", "Rabbit", "Radiation", "Rag",
+                    "Ray", "Revolution", "Ring", "Robot", "Rock", "Rod", "Roll", "Rome", "Root", "Rose",
+                    "Roulette", "Round", "Row", "Ruler", "Satellite", "Scale", "School", "Scientist", "Scissors", "Screen",
+                    "Scuba Diver", "Seal", "Server", "Shadow", "Shakespeare", "Shark", "Ship", "Shoe", "Shop", "Shot",
+                    "Sink", "Ski", "Skyscraper", "Sleigh", "Smoke", "Snow", "Snowman", "Socket", "Soldier", "Soul",
+                    "Sound", "Space", "Spell", "Spider", "Spine", "Spot", "Spring", "Square", "Stadium", "Star",
+                    "State", "Stick", "Stock", "Stomach", "Store", "Stream", "Strike", "String", "Sub", "Suit",
+                    "Sun", "Supernova", "Sweat", "Swing", "Switch", "Table", "Tablet", "Tag", "Tail", "Tap",
+                    "Tea", "Teacher", "Team", "Telescope", "Temple", "Text", "Thread", "Tide", "Tiger", "Time",
+                    "Tokyo", "Tongue", "Tooth", "Torch", "Tower", "Track", "Train", "Tree", "Triangle", "Trip",
+                    "Trunk", "Tube", "Turkey", "Underground", "Uniform", "Unicorn", "Vacuum", "Van", "Vet", "Wake",
+                    "Wall", "War", "Wash", "Watch", "Water", "Wave", "Web", "Well", "Whale", "Wheel",
+                    "Whiskey", "Wind", "Window", "Wire", "Wolf", "Wood", "Word", "Worm", "Yard", "Zero"
+                ],
+                "Fantasy": [
+                    "Wizard", "Dragon", "Castle", "Sword", "Magic", "Elf", "Dwarf", "Goblin", "Quest", "Potion",
+                    "Forest", "Knight", "Shield", "Scroll", "Griffin", "Unicorn", "Troll", "Ogre", "Wand", "Crystal",
+                    "Rune", "Myth", "Legend", "Oracle", "Sorcerer", "Talisman", "Enchant", "Beast", "Bard", "Relic",
+                    "Dungeon", "King", "Queen", "Prince", "Princess", "Crown", "Throne", "Prophecy", "Whisper", "Shadow",
+                    "Light", "Darkness", "Spirit", "Ghost", "Vampire", "Werewolf", "Giant", "Fairy", "Pixie", "Gnome",
+                    "River", "Mountain", "Valley", "Cave", "Swamp", "Desert", "Ocean", "Island", "Volcano", "Star",
+                    "Moon", "Sun", "Comet", "Meteor", "Constellation", "Galaxy", "Nebula", "Cosmos", "Void", "Abyss",
+                    "Gate", "Portal", "Dimension", "Realm", "World", "Universe", "Destiny", "Fate", "Fortune", "Curse",
+                    "Blessing", "Charm", "Amulet", "Orb", "Sphere", "Gem", "Jewel", "Treasure", "Gold", "Silver",
+                    "Copper", "Iron", "Steel", "Bronze", "Stone", "Wood", "Leather", "Cloth", "Silk", "Velvet",
+                    "Feather", "Scale", "Claw", "Fang", "Horn", "Wing", "Tail", "Eye", "Heart", "Soul"
+                ],
+                "Space": [
+                    "Planet", "Starship", "Alien", "Galaxy", "Astronaut", "Rocket", "Comet", "Asteroid", "Orbit", "Laser",
+                    "Nebula", "Black Hole", "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Sun",
+                    "Gravity", "Warp", "Hyperspace", "Teleport", "Probe", "Satellite", "Station", "Colony", "Crater", "Dust",
+                    "Plasma", "Photon", "Quantum", "Andromeda", "Milky Way", "Cosmos", "Voyage", "Explorer", "Captain", "Crew",
+                    "Robot", "Android", "Cyborg", "Mech", "Drone", "Sensor", "Shield", "Weapon", "Engine", "Fuel",
+                    "Oxygen", "Vacuum", "Zero-G", "Meteorite", "Telescope", "Observatory", "Signal", "Transmission", "Beacon", "Wormhole",
+                    "Portal", "Dimension", "Universe", "Multiverse", "Exoplanet", "Terraform", "Asteroid Belt", "Space Suit", "Life Support", "Star Map",
+                    "Wreckage", "Anomaly", "Crystal", "Energy", "Force Field", "Hyperdrive", "Ion", "Light Speed", "Magnetic", "Navigation",
+                    "Outpost", "Pilot", "Radar", "Refuel", "Scout", "Shuttle", "Solar", "Stardate", "Thruster", "Vector"
+                ],
+                "Church": [
+                    "Book of Mormon", "Lehi", "Adam", "Liahona", "Palymara", "Cumorah", "Laban", "Jared", "Alma", "Mosiah", 
+                    "Jerusalem", "Temple", "Gethsemane", "Indipandance", "Egypt", "Abraham", "Tribe", "Covenant", "Noah", "Nauvoo", 
+                    "Jacob", "Corinth", "Kirtland", "Salt Lake", "Revelation", "Israel", "Deseret", "Utah", "Sacrament"
+                ]
+            };
 
-            let gameBoard = []; // Stores the current game board (word, type, revealed, originalIndex)
+            // Mapping for short codes for word lists in spymaster code
+            const wordListCodeMap = {
+                "Default": "DEF",
+                "Fantasy": "FAN",
+                "Space": "SPA",
+                "Church": "LDS"
+                // Add more mappings here if you add more lists
+            };
+            const wordListCodeMapReverse = Object.fromEntries(
+                Object.entries(wordListCodeMap).map(([key, value]) => [value, key])
+            );
+
+
+            let gameBoard = []; // Stores the current game board (word, type, revealed, originalIndex, wordListKey)
             let currentTurn = ''; // 'red' or 'blue'
             let revealedCardsCount = { red: 0, blue: 0 };
             const TOTAL_RED_CARDS = 9; // Red starts with one more card
@@ -54,6 +98,18 @@
             const TOTAL_BYSTANDER_CARDS = 7;
             const TOTAL_ASSASSIN_CARDS = 1;
             const TOTAL_CARDS_ON_BOARD = 25;
+
+            /**
+             * Populates the word list dropdown with available lists.
+             */
+            function populateWordListDropdown() {
+                for (const listName in allCodenamesWords) {
+                    const option = document.createElement('option');
+                    option.value = listName;
+                    option.textContent = listName;
+                    wordListSelect.appendChild(option);
+                }
+            }
 
             /**
              * Shuffles an array in place using the Fisher-Yates (Knuth) algorithm.
@@ -80,7 +136,7 @@
             /**
              * Initializes the Codenames game board.
              * If spymasterCode is provided, it loads the board from the code.
-             * Otherwise, it generates a new random board.
+             * Otherwise, it generates a new random board using the selected word list.
              * @param {string} [spymasterCode] Optional code string to load a specific board.
              */
             function initializeBoard(spymasterCode = null) {
@@ -96,6 +152,10 @@
                         boardElement.classList.add('spymaster-mode');
                         showAnswerBtn.style.display = 'none'; // Hide "Show Answer" button in spymaster view
                         spymasterCodeOutput.value = spymasterCode; // Display the loaded code
+                        // Set the dropdown to the loaded list, if it exists
+                        if (gameBoard.length > 0 && gameBoard[0].wordListKey) {
+                            wordListSelect.value = wordListCodeMapReverse[gameBoard[0].wordListKey] || "Default";
+                        }
                     } catch (error) {
                         displayMessage(`Error loading code: ${error.message}. Generating new random game.`);
                         // Fallback to new random game if code is invalid
@@ -112,17 +172,25 @@
             }
 
             /**
-             * Generates a new random Codenames board.
+             * Generates a new random Codenames board using the currently selected word list.
              */
             function generateNewRandomBoard() {
-                // Create a copy of all words and shuffle them
-                const shuffledWords = shuffleArray([...allCodenamesWords]);
+                const selectedListName = wordListSelect.value;
+                const currentWordList = allCodenamesWords[selectedListName];
+
+                if (!currentWordList || currentWordList.length < TOTAL_CARDS_ON_BOARD) {
+                    displayMessage("Error: Selected word list is too short or invalid. Please choose another.");
+                    return; // Prevent game generation if list is invalid
+                }
+
+                // Create a copy of the current word list and shuffle them
+                const shuffledWords = shuffleArray([...currentWordList]);
                 const selectedWordsWithIndices = [];
 
-                // Select 25 unique words and store their original indices from allCodenamesWords
+                // Select 25 unique words and store their original indices from the *current* word list
                 for (let i = 0; i < TOTAL_CARDS_ON_BOARD; i++) {
                     const word = shuffledWords[i];
-                    const originalIndex = allCodenamesWords.indexOf(word); // Find original index
+                    const originalIndex = currentWordList.indexOf(word); // Find original index within the selected list
                     selectedWordsWithIndices.push({ word: word, originalIndex: originalIndex });
                 }
 
@@ -139,7 +207,8 @@
                     word: wordObj.word,
                     type: shuffledTypes[index],
                     revealed: false, // Cards start unrevealed in a normal game
-                    originalIndex: wordObj.originalIndex // Store original index for code generation
+                    originalIndex: wordObj.originalIndex, // Store original index for code generation
+                    wordListKey: wordListCodeMap[selectedListName] // Store the short key for the list
                 }));
 
                 // Randomly determine starting team
@@ -152,7 +221,8 @@
 
             /**
              * Generates a compact code string representing the current board layout.
-             * Format: "INDEX-TYPECHAR,INDEX-TYPECHAR,..."
+             * Format: "LISTKEY|INDEX-TYPECHAR,INDEX-TYPECHAR,..."
+             * LISTKEY: Short code for the word list (e.g., DEF, FAN, SPA).
              * INDEX is 3 digits padded with leading zeros (e.g., 005, 123).
              * TYPECHAR: R=red, B=blue, Y=bystander, A=assassin.
              * @returns {string} The generated spymaster code.
@@ -164,12 +234,14 @@
                     'bystander': 'Y',
                     'assassin': 'A'
                 };
-                return gameBoard.map(card => {
+                const listKey = gameBoard[0] ? gameBoard[0].wordListKey : 'DEF'; // Default to DEF if board is empty
+                const cardCodes = gameBoard.map(card => {
                     // Pad index with leading zeros to ensure consistent length (e.g., 5 -> "005")
                     const indexStr = String(card.originalIndex).padStart(3, '0');
                     const typeChar = typeMap[card.type];
                     return `${indexStr}-${typeChar}`;
                 }).join(',');
+                return `${listKey}|${cardCodes}`;
             }
 
             /**
@@ -186,10 +258,23 @@
                     'A': 'assassin'
                 };
                 const parsedBoard = [];
-                const parts = codeString.split(',');
+
+                const [listKey, cardData] = codeString.split('|');
+                if (!listKey || !cardData) {
+                    throw new Error("Invalid code format: Missing list key or card data.");
+                }
+
+                const selectedListName = wordListCodeMapReverse[listKey];
+                const currentWordList = allCodenamesWords[selectedListName];
+
+                if (!currentWordList) {
+                    throw new Error(`Unknown word list key: ${listKey}.`);
+                }
+
+                const parts = cardData.split(',');
 
                 if (parts.length !== TOTAL_CARDS_ON_BOARD) {
-                    throw new Error(`Invalid code length. Expected ${TOTAL_CARDS_ON_BOARD} cards, got ${parts.length}.`);
+                    throw new Error(`Invalid card data length. Expected ${TOTAL_CARDS_ON_BOARD} cards, got ${parts.length}.`);
                 }
 
                 for (const part of parts) {
@@ -198,15 +283,16 @@
                     const type = typeMapReverse[typeChar];
 
                     // Validate parsed data
-                    if (isNaN(originalIndex) || originalIndex < 0 || originalIndex >= allCodenamesWords.length || !type) {
+                    if (isNaN(originalIndex) || originalIndex < 0 || originalIndex >= currentWordList.length || !type) {
                         throw new Error(`Invalid card format in code: "${part}".`);
                     }
 
                     parsedBoard.push({
-                        word: allCodenamesWords[originalIndex],
+                        word: currentWordList[originalIndex], // Use the specific word list
                         type: type,
                         revealed: true, // Always revealed in spymaster mode
-                        originalIndex: originalIndex
+                        originalIndex: originalIndex,
+                        wordListKey: listKey // Store the short key for the list
                     });
                 }
                 return parsedBoard;
@@ -345,6 +431,7 @@
                 }
             });
 
-            // Initial game setup when the page loads
-            initializeBoard();
+            // Initial setup
+            populateWordListDropdown(); // Populate dropdown on load
+            initializeBoard(); // Start a new game with the default list
         });

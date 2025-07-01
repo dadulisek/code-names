@@ -109,11 +109,18 @@
             border: 2px solid #e74c3c; /* Red border for assassin */
         }
 
+        /* Spymaster mode: disable clicks on cards */
+        .board.spymaster-mode .card {
+            pointer-events: none; /* Disable all pointer events */
+            cursor: default;
+        }
+
         .controls {
             display: flex;
             gap: 20px;
             width: 100%;
             justify-content: center;
+            margin-bottom: 25px; /* Space before spymaster tools */
         }
 
         .btn {
@@ -138,6 +145,62 @@
         .btn:active {
             transform: translateY(0);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Spymaster Tools Section */
+        .spymaster-tools {
+            background-color: #2d3e50;
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .spymaster-tools h2 {
+            color: #f1c40f;
+            font-size: 1.5em;
+            margin-top: 0;
+            text-align: center;
+        }
+
+        .spymaster-tools label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .spymaster-tools textarea,
+        .spymaster-tools input[type="text"],
+        .spymaster-tools select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #555;
+            background-color: #444;
+            color: #ecf0f1;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9em;
+            box-sizing: border-box;
+        }
+
+        .spymaster-tools textarea {
+            resize: vertical;
+            min-height: 80px;
+            max-height: 150px;
+        }
+
+        .spymaster-tools .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .spymaster-tools .input-group input {
+            flex-grow: 1;
         }
 
         /* Responsive adjustments */
@@ -186,58 +249,11 @@
             .btn {
                 width: 100%;
             }
-        }
-
-        .spymaster-tools {
-            background-color: #2d3e50;
-            padding: 20px;
-            border-radius: 10px;
-            width: 100%;
-            box-sizing: border-box;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .spymaster-tools h2 {
-            color: #f1c40f;
-            font-size: 1.5em;
-            margin-top: 0;
-            text-align: center;
-        }
-
-        .spymaster-tools label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        .spymaster-tools textarea,
-        .spymaster-tools input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #555;
-            background-color: #444;
-            color: #ecf0f1;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9em;
-            box-sizing: border-box;
-        }
-
-        .spymaster-tools textarea {
-            resize: vertical;
-            min-height: 80px;
-            max-height: 150px;
-        }
-
-        .spymaster-tools .input-group {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .spymaster-tools .input-group input {
-            flex-grow: 1;
+            .spymaster-tools .input-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .spymaster-tools .input-group input {
+                width: 100%;
+            }
         }
